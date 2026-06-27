@@ -1,5 +1,9 @@
 {
+  "outputDirectory": "public",
   "rewrites": [
-    { "source": "/api/reading", "destination": "/api/reading.js" }
+    {
+      "source": "/api/reading",
+      "destination": "/api/reading.js"
+    }
   ]
 }
