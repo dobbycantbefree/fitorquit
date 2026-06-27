@@ -1,23 +1,9 @@
+
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "public/index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "api/reading.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/reading",
-      "dest": "/api/reading.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/public/index.html"
+      "source": "/api/reading",
+      "destination": "/api/reading.js"
     }
   ]
 }
