@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나와 회사의 궁합은?</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500&display=swap');
+  :root {
+    --bg:#0d0b14; --surface:#16132a; --surface2:#1e1a35;
+    --border:rgba(160,130,220,0.18); --accent:#c8a8f0; --accent2:#8bb8f8;
+    --accent3:#f0c8a8; --text:#e8e0f8; --text-muted:#9890b8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:
+    radial-gradient(1px 1px at 10% 15%,rgba(200,168,240,.6) 0%,transparent 100%),
+    radial-gradient(1px 1px at 25% 60%,rgba(139,184,248,.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 40% 30%,rgba(240,200,168,.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 55% 80%,rgba(200,168,240,.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 70% 20%,rgba(139,184,248,.6) 0%,transparent 100%),
+    radial-gradient(1px 1px at 80% 70%,rgba(240,200,168,.4) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 15% 85%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 60% 10%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 35% 50%,rgba(200,168,240,.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 88% 35%,rgba(255,255,255,.25) 0%,transparent 100%)}
+  .screen{display:none;min-height:100vh;position:relative;z-index:1}
+  .screen.active{display:flex;flex-direction:column}
+
+  /* MAIN */
+  #screen-main{align-items:center;justify-content:center;text-align:center;padding:40px 24px}
+  .main-orb{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e8d0ff,#7040c0 50%,#2a1060);box-shadow:0 0 40px rgba(160,100,240,.5),0 0 80px rgba(100,60,180,.3);margin:0 auto 32px;animation:float 4s ease-in-out infinite;position:relative}
+  .main-orb::after{content:'☯';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:48px;color:rgba(255,255,255,.7)}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  .main-title{font-family:'Noto Serif KR',serif;font-size:clamp(26px,6vw,38px);font-weight:700;color:var(--accent);letter-spacing:-.5px;line-height:1.3;margin-bottom:12px}
+  .main-subtitle{font-size:15px;color:var(--text-muted);line-height:1.8;margin-bottom:48px}
+  .btn-primary{display:inline-block;padding:14px 40px;background:linear-gradient(135deg,#7040c0,#4060c0);border:1px solid rgba(200,168,240,.4);border-radius:40px;color:#fff;font-size:16px;font-family:'Noto Sans KR',sans-serif;font-weight:500;cursor:pointer;transition:all .3s;box-shadow:0 4px 20px rgba(100,60,200,.4)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(100,60,200,.6)}
+  .disclaimer-main{margin-top:36px;font-size:11px;color:rgba(150,140,180,.5);line-height:1.8}
+
+  /* FORM */
+  .form-screen{padding:0}
+  .form-header{padding:24px 24px 0;display:flex;align-items:center;gap:12px}
+  .back-btn{background:none;border:1px solid var(--border);border-radius:50%;width:36px;height:36px;color:var(--text-muted);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+  .back-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .step-label{font-size:12px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase}
+  .step-dots{display:flex;gap:6px;margin-left:auto}
+  .step-dot{width:6px;height:6px;border-radius:50%;background:var(--border);transition:background .3s}
+  .step-dot.active{background:var(--accent)}
+  .step-dot.done{background:var(--accent2)}
+  .form-body{padding:24px 24px 100px;flex:1;overflow-y:auto}
+  .form-title{font-family:'Noto Serif KR',serif;font-size:22px;font-weight:600;color:var(--accent);margin-bottom:6px}
+  .form-desc{font-size:13px;color:var(--text-muted);margin-bottom:28px;line-height:1.7}
+  .field-group{margin-bottom:20px}
+  .field-label{font-size:12px;color:var(--text-muted);letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .field-label .opt{font-size:10px;color:rgba(150,140,180,.5);background:rgba(150,140,180,.1);padding:1px 6px;border-radius:10px}
+  .field-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:15px;font-family:'Noto Sans KR',sans-serif;outline:none;transition:border-color .2s;-webkit-appearance:none}
+  .field-input:focus{border-color:var(--accent)}
+  .field-input::placeholder{color:var(--text-muted);opacity:.5}
+  select.field-input{cursor:pointer}
+  select.field-input option{background:#1e1a35}
+  .toggle-group{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .toggle-opt{flex:1;padding:11px;text-align:center;font-size:14px;cursor:pointer;transition:all .2s;color:var(--text-muted);border:none;background:none;font-family:'Noto Sans KR',sans-serif}
+  .toggle-opt.sel{background:rgba(200,168,240,.15);color:var(--accent)}
+
+  /* MBTI */
+  .mbti-slots{display:flex;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px;align-items:center;justify-content:center}
+  .mbti-slot{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+  .slot-wrap{width:100%;height:44px;overflow:hidden;border-radius:8px;background:var(--surface2);border:1px solid var(--border);position:relative}
+  .slot-wrap::before,.slot-wrap::after{content:'';position:absolute;left:0;right:0;height:12px;z-index:2;pointer-events:none}
+  .slot-wrap::before{top:0;background:linear-gradient(to bottom,var(--surface2),transparent)}
+  .slot-wrap::after{bottom:0;background:linear-gradient(to top,var(--surface2),transparent)}
+  .slot-track{display:flex;flex-direction:column;transition:transform .25s cubic-bezier(.4,1.4,.6,1)}
+  .slot-item{height:44px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;color:var(--text-muted)}
+  .slot-item.on{color:var(--accent)}
+  .slot-arrows{display:flex;gap:4px}
+  .slot-arrow{background:none;border:1px solid var(--border);border-radius:6px;width:28px;height:22px;color:var(--text-muted);cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+  .slot-arrow:hover{border-color:var(--accent);color:var(--accent)}
+  .mbti-div{color:var(--border);font-size:20px;padding-bottom:28px}
+  .mbti-label{text-align:center;font-size:13px;color:var(--text-muted);margin-top:4px}
+  .micro{margin-top:24px;font-size:10px;color:rgba(150,140,180,.35);line-height:1.7;text-align:center}
+
+  /* BOTTOM BTN */
+  .form-bottom{position:fixed;bottom:0;left:0;right:0;padding:16px 24px;background:linear-gradient(to top,var(--bg) 70%,transparent);z-index:10}
+  .btn-next{width:100%;padding:15px;background:linear-gradient(135deg,#7040c0,#4060c0);border:none;border-radius:12px;color:#fff;font-size:16px;font-family:'Noto Sans KR',sans-serif;font-weight:500;cursor:pointer;transition:all .3s;box-shadow:0 4px 20px rgba(100,60,200,.4)}
+  .btn-next:hover{opacity:.9;transform:translateY(-1px)}
+  .btn-next:disabled{opacity:.35;cursor:not-allowed;transform:none}
+
+  /* COMPANY */
+  .co-cards{display:flex;flex-direction:column;gap:12px}
+  .co-card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:all .25s;position:relative}
+  .co-card:hover{border-color:rgba(200,168,240,.4)}
+  .co-card.sel{border-color:var(--accent);background:rgba(200,168,240,.08)}
+  .co-card.sel::after{content:'✓';position:absolute;top:14px;right:16px;width:22px;height:22px;background:var(--accent);border-radius:50%;color:var(--bg);font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .co-name{font-family:'Noto Serif KR',serif;font-size:17px;font-weight:600;color:var(--text);margin-bottom:4px}
+  .co-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .co-tag{background:rgba(139,184,248,.1);border:1px solid rgba(139,184,248,.2);border-radius:20px;padding:2px 8px;font-size:11px;color:var(--accent2)}
+  .divider-or{text-align:center;font-size:12px;color:var(--text-muted);position:relative;margin:20px 0 16px}
+  .divider-or::before,.divider-or::after{content:'';position:absolute;top:50%;width:calc(50% - 24px);height:1px;background:var(--border)}
+  .divider-or::before{left:0}
+  .divider-or::after{right:0}
+  .custom-toggle{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface);border:1.5px dashed var(--border);border-radius:12px;cursor:pointer;color:var(--text-muted);font-size:14px;transition:all .2s;width:100%;font-family:'Noto Sans KR',sans-serif}
+  .custom-toggle:hover{border-color:var(--accent);color:var(--accent)}
+  .custom-toggle.open{border-color:var(--accent);border-style:solid;color:var(--accent);background:rgba(200,168,240,.05);border-radius:12px 12px 0 0;border-bottom:none}
+  .custom-form{display:none;background:rgba(200,168,240,.04);border:1.5px solid var(--accent);border-top:none;border-radius:0 0 12px 12px;padding:16px}
+  .custom-form.open{display:block}
+  .culture-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  .ctag{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .2s}
+  .ctag.on{background:rgba(200,168,240,.15);color:var(--accent);border-color:var(--accent)}
+
+  /* LOADING */
+  #screen-loading{align-items:center;justify-content:center;text-align:center;padding:40px 24px}
+  .load-wrap{position:relative;width:120px;height:120px;margin:0 auto 32px}
+  .load-orb{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e8d0ff,#7040c0 50%,#2a1060);box-shadow:0 0 40px rgba(160,100,240,.5);animation:pulse 2s ease-in-out infinite}
+  .load-ring{position:absolute;inset:-16px;border-radius:50%;border:1.5px solid rgba(200,168,240,.3);animation:spin 3s linear infinite}
+  .load-ring::after{content:'✦';position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--accent)}
+  @keyframes pulse{0%,100%{box-shadow:0 0 40px rgba(160,100,240,.5)}50%{box-shadow:0 0 60px rgba(160,100,240,.8),0 0 100px rgba(100,60,180,.4)}}
+  @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+  .load-title{font-family:'Noto Serif KR',serif;font-size:20px;color:var(--accent);margin-bottom:10px}
+  .load-status{font-size:13px;color:var(--text-muted);min-height:24px;transition:opacity .3s}
+
+  /* RESULT */
+  #screen-result{padding:0 0 60px}
+  .res-hero{background:linear-gradient(135deg,#1a1230,#0d1030);padding:40px 24px 32px;text-align:center;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+  .res-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 120%,rgba(100,60,200,.3) 0%,transparent 70%)}
+  .res-names{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:20px;position:relative}
+  .res-badge{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:20px;padding:6px 16px;font-size:14px;font-weight:500}
+  .res-icon{font-size:24px;animation:float 3s ease-in-out infinite}
+  .res-score{font-family:'Noto Serif KR',serif;font-size:72px;font-weight:700;color:var(--accent);line-height:1;text-shadow:0 0 30px rgba(200,168,240,.5)}
+  .res-score-unit{font-size:22px;color:var(--text-muted);vertical-align:super}
+  .res-score-label{font-size:14px;color:var(--text-muted);margin-bottom:14px}
+  .res-verdict{display:inline-block;background:rgba(200,168,240,.12);border:1px solid rgba(200,168,240,.3);border-radius:20px;padding:6px 18px;font-size:14px;color:var(--accent);font-weight:500}
+  .res-cards{padding:24px 16px 0;display:flex;flex-direction:column;gap:12px}
+  .res-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px}
+  .res-card-hd{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .res-card-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .res-card-tt{font-family:'Noto Serif KR',serif;font-size:15px;font-weight:600;color:var(--text)}
+  .res-card-bd{font-size:14px;color:var(--text-muted);line-height:1.8}
+  .bar-row{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .bar-track{flex:1;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:3px;transition:width 1s ease;width:0}
+  .bar-val{font-size:13px;color:var(--accent);font-weight:500;min-width:32px;text-align:right}
+  .oh-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .oh-badge{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid}
+  .warn-list{list-style:none;margin-top:8px}
+  .warn-list li{display:flex;gap:8px;align-items:flex-start;padding:4px 0;font-size:14px;color:var(--text-muted);line-height:1.6}
+  .warn-list li::before{content:'▸';color:var(--accent3);flex-shrink:0;margin-top:1px}
+  .final-box{background:linear-gradient(135deg,rgba(112,64,192,.15),rgba(64,96,192,.1));border:1px solid rgba(200,168,240,.25);border-radius:14px;padding:20px;text-align:center}
+  .final-q{font-family:'Noto Serif KR',serif;font-size:16px;color:var(--accent);line-height:1.8;margin-bottom:10px;font-style:italic}
+  .final-sub{font-size:12px;color:var(--text-muted)}
+  .btn-retry{width:100%;padding:14px;background:transparent;border:1px solid var(--border);border-radius:12px;color:var(--text-muted);font-size:14px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .2s;margin:24px 16px 0;width:calc(100% - 32px);display:block}
+  .btn-retry:hover{border-color:var(--accent);color:var(--accent)}
+</style>
+</head>
+<body>
+
+<!-- MAIN -->
+<div id="screen-main" class="screen active">
+  <div class="main-orb"></div>
+  <h1 class="main-title">나와 회사의 궁합은?</h1>
+  <p class="main-subtitle">나… 이 회사 계속 다녀도 될까…?<br>사주로 알아보는 나와 직장의 운명</p>
+  <button class="btn-primary" onclick="goTo('screen-me')">시작하기</button>
+  <p class="disclaimer-main">이 결과는 오락 목적이며 실제 진로 결정의 근거가 되지 않습니다.<br>입력 정보는 서비스 운영 목적으로 저장됩니다.</p>
+</div>
+
+<!-- ME -->
+<div id="screen-me" class="screen form-screen">
+  <div class="form-header">
+    <button class="back-btn" onclick="goTo('screen-main')">←</button>
+    <span class="step-label">내 정보</span>
+    <div class="step-dots"><div class="step-dot active"></div><div class="step-dot"></div></div>
+  </div>
+  <div class="form-body">
+    <h2 class="form-title">당신의 사주를<br>알려주세요</h2>
+    <p class="form-desc">정확한 정보일수록 더 깊은 풀이가 가능해요</p>
+    <div class="field-group">
+      <div class="field-label">이름</div>
+      <input class="field-input" type="text" id="me-name" placeholder="홍길동" maxlength="10" oninput="checkMe()">
+    </div>
+    <div class="field-group">
+      <div class="field-label">성별</div>
+      <div class="toggle-group">
+        <button class="toggle-opt sel" onclick="pick(this,'gender','여성')">여성</button>
+        <button class="toggle-opt" onclick="pick(this,'gender','남성')">남성</button>
+      </div>
+    </div>
+    <div class="field-group">
+      <div class="field-label">생년월일</div>
+      <div class="toggle-group" style="margin-bottom:8px">
+        <button class="toggle-opt sel" onclick="pick(this,'calendar','양력')">양력</button>
+        <button class="toggle-opt" onclick="pick(this,'calendar','음력')">음력</button>
+      </div>
+      <input class="field-input" type="text" id="me-birth" placeholder="예) 1990-01-01" inputmode="numeric" maxlength="10" oninput="checkMe()">
+    </div>
+    <div class="field-group">
+      <div class="field-label">태어난 시</div>
+      <select class="field-input" id="me-time">
+        <option value="">모름</option>
+        <option value="자시(23:00~01:00)">자시 (23:00~01:00)</option>
+        <option value="축시(01:00~03:00)">축시 (01:00~03:00)</option>
+        <option value="인시(03:00~05:00)">인시 (03:00~05:00)</option>
+        <option value="묘시(05:00~07:00)">묘시 (05:00~07:00)</option>
+        <option value="진시(07:00~09:00)">진시 (07:00~09:00)</option>
+        <option value="사시(09:00~11:00)">사시 (09:00~11:00)</option>
+        <option value="오시(11:00~13:00)">오시 (11:00~13:00)</option>
+        <option value="미시(13:00~15:00)">미시 (13:00~15:00)</option>
+        <option value="신시(15:00~17:00)">신시 (15:00~17:00)</option>
+        <option value="유시(17:00~19:00)">유시 (17:00~19:00)</option>
+        <option value="술시(19:00~21:00)">술시 (19:00~21:00)</option>
+        <option value="해시(21:00~23:00)">해시 (21:00~23:00)</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <div class="field-label">태어난 도시</div>
+      <select class="field-input" id="me-city">
+        <option value="서울">서울</option><option value="부산">부산</option><option value="대구">대구</option>
+        <option value="인천">인천</option><option value="광주">광주</option><option value="대전">대전</option>
+        <option value="울산">울산</option><option value="수원">수원</option>
+        <option value="기타 국내">기타 국내</option><option value="해외">해외 출생</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <div class="field-label">MBTI <span class="opt">선택</span></div>
+      <div class="mbti-slots">
+        <div class="mbti-slot">
+          <div class="slot-wrap"><div class="slot-track" id="s0"><div class="slot-item">I</div><div class="slot-item on">E</div><div class="slot-item">I</div></div></div>
+          <div class="slot-arrows"><button class="slot-arrow" onclick="mv(0,-1)">▲</button><button class="slot-arrow" onclick="mv(0,1)">▼</button></div>
+        </div>
+        <div class="mbti-div">/</div>
+        <div class="mbti-slot">
+          <div class="slot-wrap"><div class="slot-track" id="s1"><div class="slot-item">S</div><div class="slot-item on">N</div><div class="slot-item">S</div></div></div>
+          <div class="slot-arrows"><button class="slot-arrow" onclick="mv(1,-1)">▲</button><button class="slot-arrow" onclick="mv(1,1)">▼</button></div>
+        </div>
+        <div class="mbti-div">/</div>
+        <div class="mbti-slot">
+          <div class="slot-wrap"><div class="slot-track" id="s2"><div class="slot-item">F</div><div class="slot-item on">T</div><div class="slot-item">F</div></div></div>
+          <div class="slot-arrows"><button class="slot-arrow" onclick="mv(2,-1)">▲</button><button class="slot-arrow" onclick="mv(2,1)">▼</button></div>
+        </div>
+        <div class="mbti-div">/</div>
+        <div class="mbti-slot">
+          <div class="slot-wrap"><div class="slot-track" id="s3"><div class="slot-item">P</div><div class="slot-item on">J</div><div class="slot-item">P</div></div></div>
+          <div class="slot-arrows"><button class="slot-arrow" onclick="mv(3,-1)">▲</button><button class="slot-arrow" onclick="mv(3,1)">▼</button></div>
+        </div>
+      </div>
+      <div class="mbti-label" id="mbti-txt">ENTJ</div>
+    </div>
+    <div class="micro">시작하기를 누르면 입력하신 정보의 수집·저장 및 서비스 이용 목적에 동의한 것으로 간주됩니다.<br>이 서비스는 오락 목적이며 실제 진로 결정의 근거가 되지 않습니다.</div>
+  </div>
+  <div class="form-bottom">
+    <button class="btn-next" id="btn-me" onclick="goTo('screen-co')" disabled>다음 — 회사 정보 입력</button>
+  </div>
+</div>
+
+<!-- COMPANY -->
+<div id="screen-co" class="screen form-screen">
+  <div class="form-header">
+    <button class="back-btn" onclick="goTo('screen-me')">←</button>
+    <span class="step-label">회사 정보</span>
+    <div class="step-dots"><div class="step-dot done"></div><div class="step-dot active"></div></div>
+  </div>
+  <div class="form-body">
+    <h2 class="form-title">어느 회사와의<br>궁합을 볼까요?</h2>
+    <p class="form-desc">직접 입력하거나 아래에서 선택해 주세요</p>
+
+    <button class="custom-toggle" id="ct" onclick="toggleCustom()">✏️ &nbsp;회사 직접 입력하기</button>
+    <div class="custom-form" id="cf">
+      <div class="field-group">
+        <div class="field-label">회사 이름</div>
+        <input class="field-input" type="text" id="c-name" placeholder="회사명">
+      </div>
+      <div class="field-group">
+        <div class="field-label">설립일 <span class="opt">아는 경우만</span></div>
+        <input class="field-input" type="text" id="c-found" placeholder="예) 2010-03-15" inputmode="numeric" maxlength="10">
+      </div>
+      <div class="field-group">
+        <div class="field-label">업종</div>
+        <select class="field-input" id="c-ind">
+          <option value="광고/마케팅">광고 / 마케팅</option>
+          <option value="IT/테크">IT / 테크</option>
+          <option value="금융">금융</option>
+          <option value="제조">제조</option>
+          <option value="유통/커머스">유통 / 커머스</option>
+          <option value="미디어/엔터">미디어 / 엔터</option>
+          <option value="컨설팅">컨설팅</option>
+          <option value="공공/공기업">공공 / 공기업</option>
+          <option value="스타트업">스타트업</option>
+          <option value="기타">기타</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <div class="field-label">기업 규모</div>
+        <div class="toggle-group">
+          <button class="toggle-opt sel" onclick="pickSize(this,'대기업')">대기업</button>
+          <button class="toggle-opt" onclick="pickSize(this,'중견')">중견</button>
+          <button class="toggle-opt" onclick="pickSize(this,'스타트업')">스타트업</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">사풍 키워드 <span class="opt">최대 3개</span></div>
+        <div class="culture-tags">
+          <button class="ctag" onclick="togTag(this,'수직적')">수직적</button>
+          <button class="ctag" onclick="togTag(this,'수평적')">수평적</button>
+          <button class="ctag" onclick="togTag(this,'빠른성장')">빠른 성장</button>
+          <button class="ctag" onclick="togTag(this,'안정적')">안정적</button>
+          <button class="ctag" onclick="togTag(this,'워라밸중시')">워라밸 중시</button>
+          <button class="ctag" onclick="togTag(this,'글로벌')">글로벌</button>
+          <button class="ctag" onclick="togTag(this,'창의적')">창의적</button>
+          <button class="ctag" onclick="togTag(this,'성과주의')">성과주의</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider-or">또는 빠르게 선택</div>
+    <div class="co-cards">
+      <div class="co-card" id="card-cheil" onclick="pickCo('cheil')">
+        <div class="co-name">제일기획</div>
+        <div class="co-tags"><span class="co-tag">광고대행사</span><span class="co-tag">대기업</span><span class="co-tag">서울</span></div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:8px">설립 1973. 1. 17 · 삼성 계열</div>
+      </div>
+      <div class="co-card" id="card-onerx" onclick="pickCo('onerx')">
+        <div class="co-name">One RX</div>
+        <div class="co-tags"><span class="co-tag">브랜딩 에이전시</span><span class="co-tag">중소기업</span><span class="co-tag">서울/두바이</span></div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:8px">설립 2016. 1. 28 · 글로벌 오피스</div>
+      </div>
+    </div>
+  </div>
+  <div class="form-bottom">
+    <button class="btn-next" id="btn-co" onclick="start()" disabled>궁합 보기</button>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="screen-loading" class="screen">
+  <div class="load-wrap"><div class="load-orb"></div><div class="load-ring"></div></div>
+  <div class="load-title">사주를 읽는 중…</div>
+  <div class="load-status" id="load-msg">오행의 기운을 살피고 있어요</div>
+</div>
+
+<!-- RESULT -->
+<div id="screen-result" class="screen">
+  <div class="res-hero">
+    <div class="res-names">
+      <div class="res-badge" id="r-me">—</div>
+      <div class="res-icon">☯</div>
+      <div class="res-badge" id="r-co">—</div>
+    </div>
+    <div><span class="res-score" id="r-score">—</span><span class="res-score-unit">점</span></div>
+    <div class="res-score-label">궁합 지수</div>
+    <div class="res-verdict" id="r-verdict">—</div>
+  </div>
+  <div class="res-cards" id="r-cards"></div>
+  <button class="btn-retry" onclick="goTo('screen-main')">처음부터 다시 보기</button>
+</div>
+
+<script>
+const S = { gender:'여성', calendar:'양력', mbtiIdx:[0,0,0,0], mbtiOpts:[['E','I'],['N','S'],['T','F'],['J','P']], co:null, customOpen:false, coSize:'대기업', tags:[] };
+
+function goTo(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+
+function pick(btn,key,val){ S[key]=val; btn.closest('.toggle-group').querySelectorAll('.toggle-opt').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel'); }
+
+function mv(i,d){ const o=S.mbtiOpts[i]; S.mbtiIdx[i]=(S.mbtiIdx[i]+d+o.length)%o.length; const c=S.mbtiIdx[i]; const items=document.getElementById('s'+i).querySelectorAll('.slot-item'); items[0].textContent=o[(c-1+o.length)%o.length]; items[1].textContent=o[c]; items[2].textContent=o[(c+1)%o.length]; const t=document.getElementById('s'+i); t.style.transform=`translateY(${d===1?'-4px':'4px'})`; setTimeout(()=>t.style.transform='',200); updMBTI(); }
+
+function updMBTI(){ const m=S.mbtiOpts.map((o,i)=>o[S.mbtiIdx[i]]).join(''); document.getElementById('mbti-txt').textContent=m; return m; }
+
+function checkMe(){ document.getElementById('btn-me').disabled=!(document.getElementById('me-name').value.trim()&&document.getElementById('me-birth').value.trim()); }
+
+function pickCo(id){ S.co=id; S.customOpen=false; document.getElementById('ct').classList.remove('open'); document.getElementById('cf').classList.remove('open'); document.querySelectorAll('.co-card').forEach(c=>c.classList.remove('sel')); document.getElementById('card-'+id).classList.add('sel'); document.getElementById('btn-co').disabled=false; }
+
+function toggleCustom(){ S.customOpen=!S.customOpen; document.getElementById('ct').classList.toggle('open',S.customOpen); document.getElementById('cf').classList.toggle('open',S.customOpen); if(S.customOpen){ S.co='custom'; document.querySelectorAll('.co-card').forEach(c=>c.classList.remove('sel')); document.getElementById('btn-co').disabled=false; } else if(S.co==='custom'){ S.co=null; document.getElementById('btn-co').disabled=true; } }
+
+function pickSize(btn,val){ S.coSize=val; btn.closest('.toggle-group').querySelectorAll('.toggle-opt').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel'); }
+
+function togTag(btn,tag){ if(S.tags.includes(tag)){ S.tags=S.tags.filter(t=>t!==tag); btn.classList.remove('on'); } else{ if(S.tags.length>=3)return; S.tags.push(tag); btn.classList.add('on'); } }
+
+function getCo(){ if(S.co==='cheil') return {name:'제일기획',founded:'1973년 1월 17일',industry:'광고대행사',size:'대기업',location:'서울',culture:'수직적, 안정적, 글로벌'}; if(S.co==='onerx') return {name:'One RX',founded:'2016년 1월 28일',industry:'브랜딩 에이전시',size:'중소기업',location:'서울/두바이(글로벌)',culture:'글로벌, 창의적, 빠른 성장'}; return {name:document.getElementById('c-name').value||'입력한 회사',founded:document.getElementById('c-found').value||'불명',industry:document.getElementById('c-ind').value,size:S.coSize,location:'직접 입력',culture:S.tags.join(', ')||'정보 없음'}; }
+
+const MSGS=['오행의 기운을 살피고 있어요','천간과 지지를 정렬하는 중…','회사의 운명을 읽는 중…','두 사주의 상생·상극을 분석 중…','결과를 정리하고 있어요…'];
+
+async function start(){
+  const me={ name:document.getElementById('me-name').value.trim(), gender:S.gender, birth:document.getElementById('me-birth').value.trim(), calendar:S.calendar, birthTime:document.getElementById('me-time').value||'모름', city:document.getElementById('me-city').value, mbti:updMBTI() };
+  const co=getCo();
+  document.getElementById('r-me').textContent=me.name;
+  document.getElementById('r-co').textContent=co.name;
+  goTo('screen-loading');
+  let mi=0; const el=document.getElementById('load-msg'); el.textContent=MSGS[0];
+  const t=setInterval(()=>{ mi=(mi+1)%MSGS.length; el.style.opacity=0; setTimeout(()=>{el.textContent=MSGS[mi];el.style.opacity=1;},300); },2200);
+  try{
+    const res=await fetch('/api/reading',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({me,company:co})});
+    if(!res.ok){ const e=await res.json().catch(()=>({})); throw new Error(e.error||`HTTP ${res.status}`); }
+    const r=await res.json();
+    clearInterval(t);
+    render(r,me,co);
+    goTo('screen-result');
+  }catch(e){ clearInterval(t); console.error(e); goTo('screen-co'); alert('오류가 발생했어요. 잠시 후 다시 시도해 주세요.\n('+e.message+')'); }
+}
+
+function render(r,me,co){
+  document.getElementById('r-score').textContent=r.score;
+  document.getElementById('r-verdict').textContent=r.verdict;
+  const oC={'木':{bg:'rgba(112,192,112,.15)',b:'rgba(112,192,112,.5)',c:'#70c090'},'火':{bg:'rgba(224,112,112,.15)',b:'rgba(224,112,112,.5)',c:'#e07070'},'土':{bg:'rgba(212,184,106,.15)',b:'rgba(212,184,106,.5)',c:'#d4b86a'},'金':{bg:'rgba(200,200,220,.15)',b:'rgba(200,200,220,.5)',c:'#c8c8dc'},'水':{bg:'rgba(139,184,248,.15)',b:'rgba(139,184,248,.5)',c:'#8bb8f8'}};
+  const badge=s=>s.split('').map(ch=>{const c=oC[ch];return c?`<span class="oh-badge" style="background:${c.bg};border-color:${c.b};color:${c.c}">${ch}</span>`:`<span class="oh-badge" style="background:rgba(200,168,240,.1);border-color:rgba(200,168,240,.3);color:var(--accent)">${ch}</span>`;}).join('');
+  const barC=s=>s>=70?'linear-gradient(90deg,#70c090,#8bb8f8)':s>=40?'linear-gradient(90deg,#d4b86a,#c8a8f0)':'linear-gradient(90deg,#e07070,#d4b86a)';
+  const rel=r.ohaeng.relation; const rc=rel==='상생'?{bg:'rgba(112,192,112,.15)',c:'#70c090',b:'rgba(112,192,112,.4)'}:rel==='상극'?{bg:'rgba(224,112,112,.15)',c:'#e07070',b:'rgba(224,112,112,.4)'}:{bg:'rgba(212,184,106,.15)',c:'#d4b86a',b:'rgba(212,184,106,.4)'};
+  const cards=[
+    {ic:'🔮',bg:'rgba(200,168,240,.15)',tt:'총평',body:`<div class="res-card-bd">${r.summary}</div>`},
+    {ic:'☯️',bg:'rgba(139,184,248,.15)',tt:'오행 분석',body:`<div class="oh-badges"><span style="font-size:12px;color:var(--text-muted);align-self:center">${me.name}&nbsp;</span>${badge(r.ohaeng.me)}<span style="font-size:12px;color:var(--text-muted);margin:0 4px">vs</span>${badge(r.ohaeng.company)}<span style="font-size:12px;color:var(--text-muted)">&nbsp;${co.name}</span></div><div style="margin-top:10px;display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;background:${rc.bg};color:${rc.c};border:1px solid ${rc.b}">${rel}</div><div class="res-card-bd" style="margin-top:10px">${r.ohaeng.desc}</div>`},
+    {ic:'💼',bg:'rgba(212,184,106,.15)',tt:'직장운',body:`<div class="res-card-bd">${r.career.desc}</div><div class="bar-row"><div class="bar-track"><div class="bar-fill" style="background:${barC(r.career.score)}" data-w="${r.career.score}%"></div></div><div class="bar-val">${r.career.score}</div></div>`},
+    {ic:'💰',bg:'rgba(212,184,106,.12)',tt:'재물운',body:`<div class="res-card-bd">${r.money.desc}</div><div class="bar-row"><div class="bar-track"><div class="bar-fill" style="background:${barC(r.money.score)}" data-w="${r.money.score}%"></div></div><div class="bar-val">${r.money.score}</div></div>`},
+    {ic:'🤝',bg:'rgba(139,184,248,.12)',tt:'인간관계운',body:`<div class="res-card-bd">${r.relations.desc}</div><div class="bar-row"><div class="bar-track"><div class="bar-fill" style="background:${barC(r.relations.score)}" data-w="${r.relations.score}%"></div></div><div class="bar-val">${r.relations.score}</div></div>`},
+    {ic:'⚠️',bg:'rgba(224,112,112,.12)',tt:'이것만은 주의하세요',body:`<ul class="warn-list">${(r.warnings||[]).map(w=>`<li>${w}</li>`).join('')}</ul>`},
+    {ic:'✨',bg:'rgba(200,168,240,.12)',tt:'사주가 전하는 한마디',body:`<div class="final-box"><div class="final-q">"${r.advice}"</div><div class="final-sub">이 결과는 오락 목적이며 실제 진로 결정의 근거가 되지 않습니다</div></div>`},
+  ];
+  document.getElementById('r-cards').innerHTML=cards.map(c=>`<div class="res-card"><div class="res-card-hd"><div class="res-card-ic" style="background:${c.bg}">${c.ic}</div><div class="res-card-tt">${c.tt}</div></div>${c.body}</div>`).join('');
+  setTimeout(()=>document.querySelectorAll('.bar-fill').forEach(b=>b.style.width=b.dataset.w),300);
+}
+</script>
+</body>
+</html>
