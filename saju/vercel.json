@@ -1,5 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/api/saju", "destination": "/api/saju.js" }
-  ]
-}
