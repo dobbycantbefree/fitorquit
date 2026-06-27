@@ -32,7 +32,6 @@ export default async function handler(req, res) {
       });
     } catch (e) {
       console.error('Sheet error:', e.message);
-      // 시트 실패해도 결과는 계속 진행
     }
   }
 
@@ -49,7 +48,7 @@ export default async function handler(req, res) {
 
 {
   "score": (0~100 정수),
-  "verdict": "한 줄 판정문 (예: 운명적 인연, 시험의 관계, 성장의 파트너)",
+  "verdict": "사주 분석을 바탕으로 이 사람이 이 회사를 계속 다녀야 할지에 대한 핵심 한 마디. 짧고 직관적으로. 점수와 사주 내용을 반영해 자연스러운 한국어로. 예시 방향: 점수 매우 높으면 '이 회사가 당신의 운명입니다' '여기서 꽃피울 사람' 류. 점수 높으면 '말뚝 박아도 됩니다' '오래 다닐수록 빛나는 사람' 류. 점수 중간이면 '조금 더 다녀봐도 좋아요' '지금은 떠날 때가 아니에요' 류. 점수 낮으면 '슬슬 나갈 준비를 해도 됩니다' '이 인연은 여기까지인 것 같아요' 류. 점수 매우 낮으면 '지금 당장 퇴사하세요' '이 회사는 당신의 기운을 갉아먹고 있어요' 류. 예시를 그대로 쓰지 말고 결과에 맞게 자유롭게 변형해서 생성할 것.",
   "summary": "총평 2~3문장. 솔직하고 공감가는 말투로.",
   "ohaeng": {
     "me": "의뢰인 주요 오행 한자 1~2글자 (木火土金水 중)",
@@ -72,7 +71,7 @@ export default async function handler(req, res) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.8, maxOutputTokens: 1500 },
+          generationConfig: { temperature: 0.9, maxOutputTokens: 1500 },
         }),
       }
     );
